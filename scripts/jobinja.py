@@ -105,7 +105,9 @@ def email(to, subject, body_file, attach=None):
         with open(attach, "rb") as f:
             msg.add_attachment(f.read(), maintype=maintype, subtype=subtype,
                                filename=os.path.basename(attach))
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
+    # ponytail: port 587+STARTTLS, not 465 — 465 is blocked on some Iranian ISPs
+    with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as s:
+        s.starttls()
         s.login(sender, password)
         s.send_message(msg)
     return {"sent": True, "to": to, "subject": subject}
